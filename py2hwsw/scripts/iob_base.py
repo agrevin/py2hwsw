@@ -226,11 +226,14 @@ def str_to_kwargs(attrs: list):
                                     kwargs[arg] = dict(
                                         pair.split(":") for pair in kwargs[arg]
                                     )
-                            else:
+                            elif isinstance(dicts[arg], list):
                                 kwargs[arg] = [
                                     dict(zip(dicts[arg], values))
                                     for values in kwargs[arg]
                                 ]
+                            elif isinstance(dicts[arg], tuple):
+                                kwargs[arg] = dict(zip(dicts[arg], kwargs[arg]))
+                    kwargs = {k: v for k, v in kwargs.items() if v is not None}
                     if attrs[0] == "core_name":
                         func(core, instance_description=descr.strip(), **kwargs)
                     else:
