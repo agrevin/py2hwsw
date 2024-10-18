@@ -203,6 +203,7 @@ def str_to_kwargs(attrs: list):
         def wrapper(core, *args, **kwargs):
             if len(args) == 1 and isinstance(args[0], str):
                 parser = argparse.ArgumentParser()
+                attrs.append(["-d", "descr"])
                 dicts = {}
                 for attr in attrs:
                     if isinstance(attr, str):
@@ -216,8 +217,7 @@ def str_to_kwargs(attrs: list):
                 lines = [line.strip() for line in args[0].split("\n\n") if line.strip()]
                 for line in lines:
                     parts = shlex.split(line)
-                    descr = parts[-1]
-                    args = parser.parse_args(parts[:-1])
+                    args = parser.parse_args(parts)
                     kwargs = vars(args)
                     for arg in kwargs:
                         if arg in dicts and kwargs[arg] is not None:
@@ -237,9 +237,8 @@ def str_to_kwargs(attrs: list):
                                 kwargs[arg] = dict(zip(dicts[arg], kwargs[arg]))
                     kwargs = {k: v for k, v in kwargs.items() if v is not None}
                     if attrs[0] == "core_name":
-                        func(core, instance_description=descr.strip(), **kwargs)
-                    else:
-                        func(core, descr=descr.strip(), **kwargs)
+                        kwargs["instance_description"] = kwargs.pop("descr")
+                    func(core, **kwargs)
                 return None
             else:
                 return func(core, *args, **kwargs)
