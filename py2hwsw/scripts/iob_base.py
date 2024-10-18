@@ -227,9 +227,11 @@ def str_to_kwargs(attrs: list):
                                         pair.split(":") for pair in kwargs[arg]
                                     )
                             elif isinstance(dicts[arg], list):
+                                _keys = [ key for item in dicts[arg] for key in item.split(":") ]
+                                _values = [ value for item in kwargs[arg] for value in item.split(":") ]
                                 kwargs[arg] = [
-                                    dict(zip(dicts[arg], values))
-                                    for values in kwargs[arg]
+                                    dict(zip(_keys, _values[i:]))
+                                    for i in range(0, len(_values), len(_keys))
                                 ]
                             elif isinstance(dicts[arg], tuple):
                                 kwargs[arg] = dict(zip(dicts[arg], kwargs[arg]))
