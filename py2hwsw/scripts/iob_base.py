@@ -203,7 +203,8 @@ def str_to_kwargs(attrs: list):
         def wrapper(core, *args, **kwargs):
             if len(args) == 1 and isinstance(args[0], str):
                 parser = argparse.ArgumentParser()
-                attrs.append(["-d", "descr"])
+                if (d := ["-d", "descr"]) not in attrs:
+                    attrs.append(d)
                 dicts = {}
                 for attr in attrs:
                     if isinstance(attr, str):
