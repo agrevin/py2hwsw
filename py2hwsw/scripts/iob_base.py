@@ -198,23 +198,36 @@ def str_to_kwargs(attrs: list):
     if the 4th element is "pairs", the dictionary is created from pairs of values
     """
 
+    def create_parser(attrs: list) -> argparse.ArgumentParser:
+        parser = argparse.ArgumentParser()
+        dicts = {}
+        add_arguments(parser, attrs, dicts)
+        return parser, dicts
+
+    def add_arguments(parser: argparse.ArgumentParser, attrs: list, dicts: dict):
+        for attr in attrs:
+            if isinstance(attr, str):
+                parser.add_argument(attr)
+            elif isinstance(attr, dict):
+                for subparser_name, subparser_attrs in attr.items():
+                    subparsers = parser.add_subparsers(dest=subparser_name)
+                    subparser = subparsers.add_parser(subparser_name)
+                    add_arguments(subparser, subparser_attrs, dicts)
+            elif isinstance(attr, list):
+                if len(attr) >= 3:
+                    parser.add_argument(attr[0], dest=attr[1], **attr[2])
+                    if len(attr) == 4:
+                        dicts[attr[1]] = attr[3]
+                else:
+                    parser.add_argument(attr[0], dest=attr[1])
+
     def decorator(func):
         @wraps(func)
         def wrapper(core, *args, **kwargs):
             if len(args) == 1 and isinstance(args[0], str):
-                parser = argparse.ArgumentParser()
                 if (d := ["-d", "descr"]) not in attrs:
                     attrs.append(d)
-                dicts = {}
-                for attr in attrs:
-                    if isinstance(attr, str):
-                        parser.add_argument(attr)
-                    elif len(attr) >= 3:
-                        parser.add_argument(attr[0], dest=attr[1], **attr[2])
-                        if len(attr) == 4:
-                            dicts[attr[1]] = attr[3]
-                    else:
-                        parser.add_argument(attr[0], dest=attr[1])
+                parser, dicts = create_parser(attrs)
                 lines = [line.strip() for line in args[0].split("\n\n") if line.strip()]
                 for line in lines:
                     parts = shlex.split(line)
@@ -237,6 +250,7 @@ def str_to_kwargs(attrs: list):
                             elif isinstance(dicts[arg], tuple):
                                 kwargs[arg] = dict(zip(dicts[arg], kwargs[arg]))
                     kwargs = {k: v for k, v in kwargs.items() if v is not None}
+                    print(kwargs)
                     if attrs[0] == "core_name":
                         kwargs["instance_description"] = kwargs.pop("descr")
                     func(core, **kwargs)

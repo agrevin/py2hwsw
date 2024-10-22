@@ -399,6 +399,18 @@ class iob_core(iob_module, iob_instance):
         "instance_name",
         ["-p", "parameters", {"nargs": "+"}, "pairs"],
         ["-c", "connect", {"nargs": "+"}, "pairs"],
+        {"csrs": [
+            "name",
+            {"regs": [
+                    "name",
+                    "n_bits",
+                    ["--rst_val", "rst_val"],
+                    ["--addr", "addr"],
+                    ["--log2n_items", "log2n_items"],
+                    ["--noauto", "autoreg", {"action": "store_false"}],
+                ],
+             },
+        ]},
     ]
 
     @str_to_kwargs(attrs)
