@@ -22,7 +22,7 @@ class iob_signal:
         if not self.name:
             fail_with_msg("Signal name is not set", ValueError)
 
-        if self.name.endswith("_i"): 
+        if self.name.endswith("_i"):
             self.direction = "input"
         elif self.name.endswith("_o"):
             self.direction = "output"
@@ -52,6 +52,7 @@ class iob_signal:
             return int(self.width)
         except ValueError:
             return self.width
+
 
 @dataclass
 class iob_signal_reference:

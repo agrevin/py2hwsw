@@ -241,8 +241,16 @@ def str_to_kwargs(attrs: list):
                                         pair.split(":") for pair in kwargs[arg]
                                     )
                             elif isinstance(dicts[arg], list):
-                                _keys = [ key for item in dicts[arg] for key in item.split(":") ]
-                                _values = [ value for item in kwargs[arg] for value in item.split(":") ]
+                                _keys = [
+                                    key
+                                    for item in dicts[arg]
+                                    for key in item.split(":")
+                                ]
+                                _values = [
+                                    value
+                                    for item in kwargs[arg]
+                                    for value in item.split(":")
+                                ]
                                 kwargs[arg] = [
                                     dict(zip(_keys, _values[i:]))
                                     for i in range(0, len(_values), len(_keys))
@@ -250,7 +258,6 @@ def str_to_kwargs(attrs: list):
                             elif isinstance(dicts[arg], tuple):
                                 kwargs[arg] = dict(zip(dicts[arg], kwargs[arg]))
                     kwargs = {k: v for k, v in kwargs.items() if v is not None}
-                    print(kwargs)
                     if attrs[0] == "core_name":
                         kwargs["instance_description"] = kwargs.pop("descr")
                     func(core, **kwargs)
